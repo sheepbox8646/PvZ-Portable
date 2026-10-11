@@ -3198,7 +3198,7 @@ static std::string GetTimestampedDemoFileName(std::string_view theDemoPrefix)
 static bool ParamTakesValue(std::string_view theParamName)
 {
 	static constexpr std::string_view kValueParams[] = {
-		"-play", "-playnum", "-record", "-recnum", "-resdir", "-savedir",
+		"-play", "-playnum", "-record", "-recnum", "-resdir", "-savedir", "-speed",
 	};
 	return std::ranges::find(kValueParams, theParamName) != std::end(kValueParams);
 }

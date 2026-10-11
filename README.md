@@ -83,6 +83,9 @@ You can customize these paths via command-line parameters:
 - `-resdir <path>` / `-resdir=<path>`: Set the **resource directory** (where `main.pak` and `properties/` are located). This only affects where the game looks for resources, not where it saves data.
 - `-savedir <path>` / `-savedir=<path>`: Set the **save data directory** (where settings, savegames, caches, and screenshots are stored). This overrides the default OS-recommended application data path.
 
+Other command-line parameters:
+- `-speed <multiplier>` / `-speed=<multiplier>`: Set the **gameplay speed**, from `0.25` to `8` (default `1`). It only affects levels (including the Zen Garden); menus and other screens keep running at normal speed. Gameplay stays the same at any speed, since the game runs whole fixed-timestep updates.
+
 ### Special Instructions for Android
 
 Download the APK from the [Releases](https://github.com/wszqkzqk/PvZ-Portable/releases) page or build it yourself. Because this project **does not include** any game assets, you will need to **import the game resources** from a **legally purchased copy** of Plants vs. Zombies: GOTY Edition.
@@ -126,6 +129,8 @@ The app's Documents folder is exposed via iTunes/Finder file sharing and the iOS
 **[▶ Play Online](https://wszqkzqk.github.io/PvZ-Portable/pvz-portable.html)** — open the link, load your legally purchased game resources either from a ZIP package or from `main.pak` plus the `properties/` folder, then click **Start Game**. All files stay in your browser locally and are **never uploaded to any server** (the hosting site is purely static). Save data is stored in your browser's IndexedDB and can be imported from ZIP or folder, or exported as a ZIP via the on-screen buttons.
 
 You can also [download the WASM build](https://github.com/wszqkzqk/PvZ-Portable/releases) and self-host it. Note that the HTML file must be served over HTTP (e.g. `python3 -m http.server`) — opening it directly as a local file will not work due to browser security restrictions.
+
+Pages that embed the WASM build can change the gameplay speed while the game is running with `Module._pvzp_set_game_speed(multiplier)` and read it back with `Module._pvzp_get_game_speed()`; the range and behavior are the same as the `-speed` parameter.
 
 ## Game Version Compatibility
 

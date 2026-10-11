@@ -25,6 +25,8 @@
 constexpr const double PI = 3.141592653589793;
 
 // Constants
+constexpr const float GAME_SPEED_MIN = 0.25f;
+constexpr const float GAME_SPEED_MAX = 8.0f;
 constexpr const int BOARD_WIDTH = 800;
 constexpr const int BOARD_HEIGHT = 600;
 constexpr const int WIDE_BOARD_WIDTH = 800;

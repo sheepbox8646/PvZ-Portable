@@ -22,7 +22,13 @@
 #include <time.h>
 #include <cstdarg>
 #include <cstdio>
+#include <algorithm>
+#include <cmath>
+#include <cstdlib>
 #include <format>
+#ifdef __EMSCRIPTEN__
+#include <emscripten/emscripten.h>
+#endif
 #include "LawnApp.h"
 #include "Resources.h"
 #include "Lawn/LawnCommon.h"
@@ -145,6 +151,8 @@ LawnApp::LawnApp()
 	std::string aTitleName = "PvZ Portable";
 	mTitle = aTitleName;
 	mCustomCursorsEnabled = false;
+	mGameSpeed = 1.0f;
+	mGameSpeedAccumulator = 0.0f;
 	mPlayerInfo = nullptr;
 	mLastLevelStats = std::make_unique<LevelStats>();
 	mFirstTimeGameSelector = true;
@@ -1278,7 +1286,11 @@ bool LawnApp::DebugKeyDown(int theKey)
 
 void LawnApp::HandleCmdLineParam(std::string_view theParamName, std::string_view theParamValue)
 {
-	if (theParamName == "-cheat")
+	if (theParamName == "-speed")
+	{
+		SetGameSpeed(static_cast<float>(std::atof(std::string(theParamValue).c_str())));
+	}
+	else if (theParamName == "-cheat")
 	{
 #ifdef PVZ_DEBUG
 		mCheatKeys = true;
@@ -1576,6 +1588,15 @@ void LawnApp::UpdateFrames()
 	{
 		aUpdateCount = 20;
 	}
+	else if (mBoard && mGameSpeed != 1.0f)
+	{
+		// Run whole fixed-timestep updates, so gameplay stays identical at any speed;
+		// fractional speeds carry the remainder over to the next frame.
+		// Menus and other screens without a board keep running at normal speed.
+		mGameSpeedAccumulator += mGameSpeed;
+		aUpdateCount = static_cast<int>(mGameSpeedAccumulator);
+		mGameSpeedAccumulator -= aUpdateCount;
+	}
 
 	for (int i = 0; i < aUpdateCount; i++)
 	{
@@ -1610,6 +1631,29 @@ void LawnApp::ToggleFastMo()
 	gSlowMo = false;
 	gFastMo = !gFastMo;
 }
+
+void LawnApp::SetGameSpeed(float theSpeed)
+{
+	if (!std::isfinite(theSpeed))
+		theSpeed = 1.0f;
+	mGameSpeed = std::clamp(theSpeed, GAME_SPEED_MIN, GAME_SPEED_MAX);
+	mGameSpeedAccumulator = 0.0f;
+}
+
+#ifdef __EMSCRIPTEN__
+// Lets the web page change the gameplay speed while the game is running:
+// Module._pvzp_set_game_speed(2.0) / Module._pvzp_get_game_speed()
+extern "C" EMSCRIPTEN_KEEPALIVE void pvzp_set_game_speed(float theSpeed)
+{
+	if (gLawnApp)
+		gLawnApp->SetGameSpeed(theSpeed);
+}
+
+extern "C" EMSCRIPTEN_KEEPALIVE float pvzp_get_game_speed()
+{
+	return gLawnApp ? gLawnApp->mGameSpeed : 1.0f;
+}
+#endif
 
 void LawnApp::LoadGroup(const char* theGroupName, int theGroupAveMsToLoad)
 {

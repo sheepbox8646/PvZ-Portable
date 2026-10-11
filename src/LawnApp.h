@@ -94,6 +94,8 @@ public:
 	int								mMaxPlays;
 	int								mMaxTime;
 	bool							mEasyPlantingCheat;
+	float							mGameSpeed;						// gameplay speed multiplier, 1.0 = normal; see SetGameSpeed()
+	float							mGameSpeedAccumulator;			// fractional updates carried over between frames
 	std::unique_ptr<PoolEffect>		mPoolEffect;
 	std::unique_ptr<ZenGarden>		mZenGarden;
 	std::unique_ptr<EffectSystem>	mEffectSystem;
@@ -229,6 +231,7 @@ public:
 	virtual void					ShowResourceError(bool doExit = false);
 	void							ToggleSlowMo();
 	void							ToggleFastMo();
+	void							SetGameSpeed(float theSpeed);
 	void							PlayFoley(FoleyType theFoleyType);
 	void							PlayFoleyPitch(FoleyType theFoleyType, float thePitch);
 	void							PlaySample(intptr_t theSoundNum) override;
